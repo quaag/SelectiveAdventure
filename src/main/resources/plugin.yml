@@ -1,0 +1,39 @@
+name: SelectiveAdventure
+version: '${version}'
+main: com.selectiveadventure.SelectiveAdventurePlugin
+api-version: '1.21'
+author: SelectiveAdventure
+description: Region-based selective adventure-mode block permissions.
+folia-supported: false
+
+commands:
+  sa:
+    description: SelectiveAdventure main command.
+    usage: /sa help
+    aliases: [selectiveadventure, sadv]
+
+permissions:
+  selectiveadventure.admin:
+    description: Full access to all SelectiveAdventure commands and bypass.
+    default: op
+    children:
+      selectiveadventure.bypass: true
+      selectiveadventure.wand: true
+      selectiveadventure.region.create: true
+      selectiveadventure.region.manage: true
+      selectiveadventure.reload: true
+  selectiveadventure.bypass:
+    description: Ignores all region restrictions.
+    default: op
+  selectiveadventure.wand:
+    description: Allows using the selection wand.
+    default: op
+  selectiveadventure.region.create:
+    description: Allows creating regions.
+    default: op
+  selectiveadventure.region.manage:
+    description: Allows managing regions (players, blocks, enable/disable, delete).
+    default: op
+  selectiveadventure.reload:
+    description: Allows reloading the plugin.
+    default: op

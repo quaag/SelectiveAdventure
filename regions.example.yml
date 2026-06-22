@@ -1,0 +1,51 @@
+# ============================================================
+#  Example regions.yml
+#  This is the format SelectiveAdventure writes to
+#  plugins/SelectiveAdventure/regions.yml.
+#  You normally don't edit this by hand - use /sa commands -
+#  but this shows the exact structure.
+# ============================================================
+regions:
+  library:
+    name: library
+    world: world
+    minX: 100
+    minY: 60
+    minZ: -50
+    maxX: 130
+    maxY: 75
+    maxZ: -20
+    enabled: true
+    # true  -> allowed players may only break/place the listed block types
+    # false -> allowed players may break/place ANY block in the region
+    default-deny: true
+    players:
+      "9a8b7c6d-1234-4abc-9def-0123456789ab": "Steve"
+      "11112222-3333-4444-5555-666677778888": "Alex"
+    allowed-break:
+      - BOOKSHELF
+      - CHISELED_BOOKSHELF
+    allowed-place:
+      - BOOKSHELF
+
+  spawn_garden:
+    name: spawn_garden
+    world: world
+    minX: -10
+    minY: 63
+    minZ: -10
+    maxX: 10
+    maxY: 80
+    maxZ: 10
+    enabled: true
+    default-deny: true
+    players:
+      "11112222-3333-4444-5555-666677778888": "Alex"
+    allowed-break:
+      - OAK_LEAVES
+      - DANDELION
+      - POPPY
+    allowed-place:
+      - OAK_SAPLING
+      - DANDELION
+      - POPPY

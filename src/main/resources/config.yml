@@ -1,0 +1,30 @@
+# ============================================================
+#  SelectiveAdventure configuration
+# ============================================================
+
+# If false: outside of regions players build/break normally (survival).
+# If true:  block breaking/placing is denied EVERYWHERE unless the player
+#           is inside a region that explicitly allows the action for them.
+global-adventure-protection: false
+
+# If true: when a player without bypass enters a protected (enabled) region
+#          they are forced into ADVENTURE game mode, and their previous game
+#          mode is restored when they leave.
+# If false: protection is purely event-based (recommended for v1).
+force-adventure-in-regions: false
+
+# The material used as the selection wand (given by /sa wand).
+# Must be a valid material name (e.g. GOLDEN_AXE, WOODEN_AXE, STICK).
+selection-tool: GOLDEN_AXE
+
+# Show the deny message in the action bar (true) instead of chat (false).
+show-actionbar-deny-message: true
+
+# Message shown when an action is denied. Supports & color codes.
+deny-message: "&cYou cannot do that here."
+
+# File (inside the plugin folder) used to store regions.
+save-file: regions.yml
+
+# Verbose debug logging to console.
+debug: false
