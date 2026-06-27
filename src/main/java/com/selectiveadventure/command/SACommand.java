@@ -36,7 +36,8 @@ public class SACommand implements CommandExecutor, TabCompleter {
             "enable", "disable", "addplayer", "removeplayer", "listplayers",
             "allowbreak", "denybreak", "allowplace", "denyplace", "listblocks",
             "togglebreak", "toggleplace", "reload", "version", "here",
-            "visualize", "togglevisual", "visual", "allowbreakhand", "allowplacehand", "help");
+            "visualize", "togglevisual", "visual", "hearts", "naturalmobs",
+            "allowbreakhand", "allowplacehand", "help");
 
     private final SelectiveAdventurePlugin plugin;
 
@@ -108,6 +109,10 @@ public class SACommand implements CommandExecutor, TabCompleter {
             case "togglevisual":
             case "visual":
                 return toggleVisual(sender);
+            case "hearts":
+                return hearts(sender, args);
+            case "naturalmobs":
+                return naturalMobs(sender, args);
             case "allowbreakhand":
                 return hand(sender, args, true);
             case "allowplacehand":
@@ -143,6 +148,8 @@ public class SACommand implements CommandExecutor, TabCompleter {
         Msg.raw(sender, "&7/sa allowbreakhand | allowplacehand <name>");
         Msg.raw(sender, "&7/sa listblocks <name> | visualize <name>");
         Msg.raw(sender, "&7/sa togglevisual &8- &flive region preview overlay");
+        Msg.raw(sender, "&7/sa hearts <name> <on|off> &8- &f1-row hearts in region");
+        Msg.raw(sender, "&7/sa naturalmobs <name> <on|off> &8- &fnatural mob spawning");
         Msg.raw(sender, "&7/sa reload | version");
         return true;
     }
@@ -242,6 +249,7 @@ public class SACommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if (plugin.getRegionManager().delete(args[1])) {
+            plugin.getHeartsManager().recheckAll();
             Msg.send(sender, "&aDeleted region &f" + args[1] + "&a.");
         } else {
             Msg.send(sender, "&cNo region named &f" + args[1] + "&c.");
@@ -280,6 +288,9 @@ public class SACommand implements CommandExecutor, TabCompleter {
         Msg.raw(sender, " &7Max: &f" + r.getMaxX() + ", " + r.getMaxY() + ", " + r.getMaxZ());
         Msg.raw(sender, " &7Enabled: " + (r.isEnabled() ? "&atrue" : "&cfalse"));
         Msg.raw(sender, " &7Default-deny: &f" + r.isDefaultDeny());
+        Msg.raw(sender, " &7One-row hearts: " + (r.isOneRowHearts() ? "&atrue" : "&cfalse"));
+        Msg.raw(sender, " &7Natural mob spawning: "
+                + (r.isDisableNaturalMobSpawning() ? "&coff" : "&aon"));
         Msg.raw(sender, " &7Players: &f" + r.getAllowedPlayers().size());
         Msg.raw(sender, " &7Allowed break: &f" + namesOf(r.getAllowedBreak()));
         Msg.raw(sender, " &7Allowed place: &f" + namesOf(r.getAllowedPlace()));
@@ -296,6 +307,7 @@ public class SACommand implements CommandExecutor, TabCompleter {
         }
         r.setEnabled(enabled);
         plugin.getRegionManager().save();
+        plugin.getHeartsManager().recheckAll();
         Msg.send(sender, "&aRegion &f" + r.getName() + " &ais now "
                 + (enabled ? "&aenabled" : "&cdisabled") + "&a.");
         return true;
@@ -487,6 +499,95 @@ public class SACommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean hearts(CommandSender sender, String[] args) {
+        if (!has(sender, "selectiveadventure.region.manage")) {
+            return noPerm(sender);
+        }
+        Region region;
+        Boolean value;
+        if (args.length >= 3) {
+            region = plugin.getRegionManager().get(args[1]);
+            if (region == null) {
+                Msg.send(sender, "&cNo region named &f" + args[1] + "&c.");
+                return true;
+            }
+            value = parseOnOff(args[2]);
+        } else if (args.length == 2) {
+            if (!(sender instanceof Player player)) {
+                Msg.send(sender, "&cUsage: /sa hearts <regionName> <on|off>");
+                return true;
+            }
+            value = parseOnOff(args[1]);
+            List<Region> here = plugin.getRegionManager().regionsAt(player.getLocation());
+            if (here.isEmpty()) {
+                Msg.send(sender, "&cYou are not standing in a region. Use /sa hearts <regionName> <on|off>");
+                return true;
+            }
+            region = here.get(0);
+        } else {
+            Msg.send(sender, "&cUsage: /sa hearts <regionName> <on|off>");
+            return true;
+        }
+        if (value == null) {
+            Msg.send(sender, "&cUse &fon &cor &foff&c.");
+            return true;
+        }
+        region.setOneRowHearts(value);
+        plugin.getRegionManager().save();
+        plugin.getHeartsManager().recheckAll();
+        Msg.send(sender, "&aOne-row hearts for &f" + region.getName() + "&a: "
+                + (value ? "&aon" : "&coff"));
+        return true;
+    }
+
+    private boolean naturalMobs(CommandSender sender, String[] args) {
+        if (!has(sender, "selectiveadventure.region.manage")) {
+            return noPerm(sender);
+        }
+        Region region;
+        Boolean value;
+        if (args.length >= 3) {
+            region = plugin.getRegionManager().get(args[1]);
+            if (region == null) {
+                Msg.send(sender, "&cNo region named &f" + args[1] + "&c.");
+                return true;
+            }
+            value = parseOnOff(args[2]);
+        } else if (args.length == 2) {
+            if (!(sender instanceof Player player)) {
+                Msg.send(sender, "&cUsage: /sa naturalmobs <regionName> <on|off>");
+                return true;
+            }
+            value = parseOnOff(args[1]);
+            List<Region> here = plugin.getRegionManager().regionsAt(player.getLocation());
+            if (here.isEmpty()) {
+                Msg.send(sender, "&cYou are not standing in a region. Use /sa naturalmobs <regionName> <on|off>");
+                return true;
+            }
+            region = here.get(0);
+        } else {
+            Msg.send(sender, "&cUsage: /sa naturalmobs <regionName> <on|off>");
+            return true;
+        }
+        if (value == null) {
+            Msg.send(sender, "&cUse &fon &cor &foff&c.");
+            return true;
+        }
+        region.setDisableNaturalMobSpawning(!value);
+        plugin.getRegionManager().save();
+        Msg.send(sender, "&aNatural mob spawning for &f" + region.getName() + "&a: "
+                + (value ? "&aon" : "&coff"));
+        return true;
+    }
+
+    private Boolean parseOnOff(String s) {
+        return switch (s.toLowerCase(Locale.ROOT)) {
+            case "on", "true", "enable", "yes" -> Boolean.TRUE;
+            case "off", "false", "disable", "no" -> Boolean.FALSE;
+            default -> null;
+        };
+    }
+
     private boolean visualize(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             return playerOnly(sender);
@@ -664,6 +765,19 @@ public class SACommand implements CommandExecutor, TabCompleter {
         }
 
         String sub = args[0].toLowerCase(Locale.ROOT);
+
+        if (sub.equals("hearts") || sub.equals("naturalmobs")) {
+            if (args.length == 2) {
+                List<String> opts = new ArrayList<>(plugin.getRegionManager().names());
+                opts.add("on");
+                opts.add("off");
+                return filter(opts, args[1]);
+            }
+            if (args.length == 3) {
+                return filter(Arrays.asList("on", "off"), args[2]);
+            }
+            return List.of();
+        }
 
         // arg 2 = region name for most subcommands
         if (args.length == 2 && needsRegionArg(sub)) {

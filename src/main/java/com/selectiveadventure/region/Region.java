@@ -31,6 +31,8 @@ public class Region {
      * not WHAT).
      */
     private boolean defaultDeny = true;
+    private boolean oneRowHearts = false;
+    private boolean disableNaturalMobSpawning = false;
 
     /** UUID -> last known name. */
     private final Map<UUID, String> allowedPlayers = new HashMap<>();
@@ -196,6 +198,22 @@ public class Region {
 
     public void setDefaultDeny(boolean defaultDeny) {
         this.defaultDeny = defaultDeny;
+    }
+
+    public boolean isOneRowHearts() {
+        return oneRowHearts;
+    }
+
+    public void setOneRowHearts(boolean oneRowHearts) {
+        this.oneRowHearts = oneRowHearts;
+    }
+
+    public boolean isDisableNaturalMobSpawning() {
+        return disableNaturalMobSpawning;
+    }
+
+    public void setDisableNaturalMobSpawning(boolean disableNaturalMobSpawning) {
+        this.disableNaturalMobSpawning = disableNaturalMobSpawning;
     }
 
     public int getMinX() {

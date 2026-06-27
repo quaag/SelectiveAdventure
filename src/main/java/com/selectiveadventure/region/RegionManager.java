@@ -86,6 +86,8 @@ public class RegionManager {
         Region region = new Region(name, world, minX, minY, minZ, maxX, maxY, maxZ);
         region.setEnabled(sec.getBoolean("enabled", true));
         region.setDefaultDeny(sec.getBoolean("default-deny", true));
+        region.setOneRowHearts(sec.getBoolean("one-row-hearts", false));
+        region.setDisableNaturalMobSpawning(sec.getBoolean("disable-natural-mob-spawning", false));
 
         // players
         Map<UUID, String> players = new HashMap<>();
@@ -136,6 +138,8 @@ public class RegionManager {
             yml.set(path + ".maxZ", r.getMaxZ());
             yml.set(path + ".enabled", r.isEnabled());
             yml.set(path + ".default-deny", r.isDefaultDeny());
+            yml.set(path + ".one-row-hearts", r.isOneRowHearts());
+            yml.set(path + ".disable-natural-mob-spawning", r.isDisableNaturalMobSpawning());
 
             for (Map.Entry<UUID, String> e : r.getAllowedPlayers().entrySet()) {
                 yml.set(path + ".players." + e.getKey(), e.getValue());
