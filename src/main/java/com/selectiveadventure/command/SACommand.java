@@ -36,7 +36,7 @@ public class SACommand implements CommandExecutor, TabCompleter {
             "enable", "disable", "addplayer", "removeplayer", "listplayers",
             "allowbreak", "denybreak", "allowplace", "denyplace", "listblocks",
             "togglebreak", "toggleplace", "reload", "version", "here",
-            "visualize", "allowbreakhand", "allowplacehand", "help");
+            "visualize", "togglevisual", "visual", "allowbreakhand", "allowplacehand", "help");
 
     private final SelectiveAdventurePlugin plugin;
 
@@ -105,6 +105,9 @@ public class SACommand implements CommandExecutor, TabCompleter {
                 return here(sender);
             case "visualize":
                 return visualize(sender, args);
+            case "togglevisual":
+            case "visual":
+                return toggleVisual(sender);
             case "allowbreakhand":
                 return hand(sender, args, true);
             case "allowplacehand":
@@ -139,6 +142,7 @@ public class SACommand implements CommandExecutor, TabCompleter {
         Msg.raw(sender, "&7/sa togglebreak | toggleplace <name> <block>");
         Msg.raw(sender, "&7/sa allowbreakhand | allowplacehand <name>");
         Msg.raw(sender, "&7/sa listblocks <name> | visualize <name>");
+        Msg.raw(sender, "&7/sa togglevisual &8- &flive region preview overlay");
         Msg.raw(sender, "&7/sa reload | version");
         return true;
     }
@@ -456,6 +460,29 @@ public class SACommand implements CommandExecutor, TabCompleter {
         for (Region r : regions) {
             Msg.raw(sender, " &8- &f" + r.getName() + " "
                     + (r.isEnabled() ? "&aenabled" : "&cdisabled"));
+        }
+        return true;
+    }
+
+    private boolean toggleVisual(CommandSender sender) {
+        if (!(sender instanceof Player player)) {
+            return playerOnly(sender);
+        }
+        if (!has(sender, "selectiveadventure.region.manage")) {
+            return noPerm(sender);
+        }
+        if (!plugin.isVisualsEnabled()) {
+            Msg.send(sender, "&cVisuals are disabled in the config.");
+            return true;
+        }
+        boolean on = plugin.getVisualManager().toggle(player);
+        if (!on) {
+            Msg.send(sender, "&7Region visuals turned &foff&7.");
+            return true;
+        }
+        Msg.send(sender, "&aRegion visuals turned &fon&a.");
+        if (plugin.getVisualManager().resolveRegion(player) == null) {
+            Msg.send(sender, "&7No region to show yet. Make a wand selection or stand in a region.");
         }
         return true;
     }

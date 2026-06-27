@@ -28,3 +28,12 @@ save-file: regions.yml
 
 # Verbose debug logging to console.
 debug: false
+
+# Region preview overlay (/sa togglevisual).
+visuals:
+  enabled: true
+  # aqua, cyan, light_blue or blue
+  color: "aqua"
+  refresh-ticks: 20
+  max-radius: 128
+  max-volume: 250000
