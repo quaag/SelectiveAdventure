@@ -88,6 +88,9 @@ public class RegionManager {
         region.setDefaultDeny(sec.getBoolean("default-deny", true));
         region.setOneRowHearts(sec.getBoolean("one-row-hearts", false));
         region.setDisableNaturalMobSpawning(sec.getBoolean("disable-natural-mob-spawning", false));
+        region.setDisablePearls(sec.getBoolean("disable-pearls", false));
+        region.setDisableExplosions(sec.getBoolean("disable-explosions", false));
+        region.setHideNametags(sec.getBoolean("hide-nametags", false));
 
         // players
         Map<UUID, String> players = new HashMap<>();
@@ -140,6 +143,9 @@ public class RegionManager {
             yml.set(path + ".default-deny", r.isDefaultDeny());
             yml.set(path + ".one-row-hearts", r.isOneRowHearts());
             yml.set(path + ".disable-natural-mob-spawning", r.isDisableNaturalMobSpawning());
+            yml.set(path + ".disable-pearls", r.isDisablePearls());
+            yml.set(path + ".disable-explosions", r.isDisableExplosions());
+            yml.set(path + ".hide-nametags", r.isHideNametags());
 
             for (Map.Entry<UUID, String> e : r.getAllowedPlayers().entrySet()) {
                 yml.set(path + ".players." + e.getKey(), e.getValue());

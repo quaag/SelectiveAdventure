@@ -37,6 +37,7 @@ public class SACommand implements CommandExecutor, TabCompleter {
             "allowbreak", "denybreak", "allowplace", "denyplace", "listblocks",
             "togglebreak", "toggleplace", "reload", "version", "here",
             "visualize", "togglevisual", "visual", "hearts", "naturalmobs",
+            "pearls", "explosions", "nametags",
             "allowbreakhand", "allowplacehand", "help");
 
     private final SelectiveAdventurePlugin plugin;
@@ -113,6 +114,12 @@ public class SACommand implements CommandExecutor, TabCompleter {
                 return hearts(sender, args);
             case "naturalmobs":
                 return naturalMobs(sender, args);
+            case "pearls":
+                return pearls(sender, args);
+            case "explosions":
+                return explosions(sender, args);
+            case "nametags":
+                return nametags(sender, args);
             case "allowbreakhand":
                 return hand(sender, args, true);
             case "allowplacehand":
@@ -150,6 +157,9 @@ public class SACommand implements CommandExecutor, TabCompleter {
         Msg.raw(sender, "&7/sa togglevisual &8- &flive region preview overlay");
         Msg.raw(sender, "&7/sa hearts <name> <on|off> &8- &f1-row hearts in region");
         Msg.raw(sender, "&7/sa naturalmobs <name> <on|off> &8- &fnatural mob spawning");
+        Msg.raw(sender, "&7/sa pearls <name> <on|off> &8- &fender pearl use");
+        Msg.raw(sender, "&7/sa explosions <name> <on|off> &8- &fexplosion block damage");
+        Msg.raw(sender, "&7/sa nametags <name> <on|off> &8- &fhide nametags in region");
         Msg.raw(sender, "&7/sa reload | version");
         return true;
     }
@@ -250,6 +260,7 @@ public class SACommand implements CommandExecutor, TabCompleter {
         }
         if (plugin.getRegionManager().delete(args[1])) {
             plugin.getHeartsManager().recheckAll();
+            plugin.getNametagManager().recheckAll();
             Msg.send(sender, "&aDeleted region &f" + args[1] + "&a.");
         } else {
             Msg.send(sender, "&cNo region named &f" + args[1] + "&c.");
@@ -291,6 +302,9 @@ public class SACommand implements CommandExecutor, TabCompleter {
         Msg.raw(sender, " &7One-row hearts: " + (r.isOneRowHearts() ? "&atrue" : "&cfalse"));
         Msg.raw(sender, " &7Natural mob spawning: "
                 + (r.isDisableNaturalMobSpawning() ? "&coff" : "&aon"));
+        Msg.raw(sender, " &7Ender pearls: " + (r.isDisablePearls() ? "&coff" : "&aon"));
+        Msg.raw(sender, " &7Explosions: " + (r.isDisableExplosions() ? "&coff" : "&aon"));
+        Msg.raw(sender, " &7Hidden nametags: " + (r.isHideNametags() ? "&aon" : "&coff"));
         Msg.raw(sender, " &7Players: &f" + r.getAllowedPlayers().size());
         Msg.raw(sender, " &7Allowed break: &f" + namesOf(r.getAllowedBreak()));
         Msg.raw(sender, " &7Allowed place: &f" + namesOf(r.getAllowedPlace()));
@@ -308,6 +322,7 @@ public class SACommand implements CommandExecutor, TabCompleter {
         r.setEnabled(enabled);
         plugin.getRegionManager().save();
         plugin.getHeartsManager().recheckAll();
+        plugin.getNametagManager().recheckAll();
         Msg.send(sender, "&aRegion &f" + r.getName() + " &ais now "
                 + (enabled ? "&aenabled" : "&cdisabled") + "&a.");
         return true;
@@ -580,6 +595,95 @@ public class SACommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean pearls(CommandSender sender, String[] args) {
+        if (!has(sender, "selectiveadventure.region.manage")) {
+            return noPerm(sender);
+        }
+        Region region = resolveTargetRegion(sender, args, "/sa pearls <regionName> <on|off>");
+        if (region == null) {
+            return true;
+        }
+        Boolean value = parseOnOff(valueToken(args));
+        if (value == null) {
+            Msg.send(sender, "&cUse &fon &cor &foff&c.");
+            return true;
+        }
+        region.setDisablePearls(!value);
+        plugin.getRegionManager().save();
+        Msg.send(sender, "&aEnder pearls for &f" + region.getName() + "&a: "
+                + (value ? "&aon" : "&coff"));
+        return true;
+    }
+
+    private boolean explosions(CommandSender sender, String[] args) {
+        if (!has(sender, "selectiveadventure.region.manage")) {
+            return noPerm(sender);
+        }
+        Region region = resolveTargetRegion(sender, args, "/sa explosions <regionName> <on|off>");
+        if (region == null) {
+            return true;
+        }
+        Boolean value = parseOnOff(valueToken(args));
+        if (value == null) {
+            Msg.send(sender, "&cUse &fon &cor &foff&c.");
+            return true;
+        }
+        region.setDisableExplosions(!value);
+        plugin.getRegionManager().save();
+        Msg.send(sender, "&aExplosions for &f" + region.getName() + "&a: "
+                + (value ? "&aon" : "&coff"));
+        return true;
+    }
+
+    private boolean nametags(CommandSender sender, String[] args) {
+        if (!has(sender, "selectiveadventure.region.manage")) {
+            return noPerm(sender);
+        }
+        Region region = resolveTargetRegion(sender, args, "/sa nametags <regionName> <on|off>");
+        if (region == null) {
+            return true;
+        }
+        Boolean value = parseOnOff(valueToken(args));
+        if (value == null) {
+            Msg.send(sender, "&cUse &fon &cor &foff&c.");
+            return true;
+        }
+        region.setHideNametags(value);
+        plugin.getRegionManager().save();
+        plugin.getNametagManager().recheckAll();
+        Msg.send(sender, "&aHidden nametags for &f" + region.getName() + "&a: "
+                + (value ? "&aon" : "&coff"));
+        return true;
+    }
+
+    private Region resolveTargetRegion(CommandSender sender, String[] args, String usage) {
+        if (args.length >= 3) {
+            Region r = plugin.getRegionManager().get(args[1]);
+            if (r == null) {
+                Msg.send(sender, "&cNo region named &f" + args[1] + "&c.");
+            }
+            return r;
+        }
+        if (args.length == 2) {
+            if (!(sender instanceof Player player)) {
+                Msg.send(sender, "&cUsage: " + usage);
+                return null;
+            }
+            List<Region> here = plugin.getRegionManager().regionsAt(player.getLocation());
+            if (here.isEmpty()) {
+                Msg.send(sender, "&cYou are not standing in a region. Usage: " + usage);
+                return null;
+            }
+            return here.get(0);
+        }
+        Msg.send(sender, "&cUsage: " + usage);
+        return null;
+    }
+
+    private String valueToken(String[] args) {
+        return args.length >= 3 ? args[2] : args[1];
+    }
+
     private Boolean parseOnOff(String s) {
         return switch (s.toLowerCase(Locale.ROOT)) {
             case "on", "true", "enable", "yes" -> Boolean.TRUE;
@@ -766,7 +870,8 @@ public class SACommand implements CommandExecutor, TabCompleter {
 
         String sub = args[0].toLowerCase(Locale.ROOT);
 
-        if (sub.equals("hearts") || sub.equals("naturalmobs")) {
+        if (sub.equals("hearts") || sub.equals("naturalmobs")
+                || sub.equals("pearls") || sub.equals("explosions") || sub.equals("nametags")) {
             if (args.length == 2) {
                 List<String> opts = new ArrayList<>(plugin.getRegionManager().names());
                 opts.add("on");

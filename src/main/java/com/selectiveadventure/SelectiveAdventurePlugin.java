@@ -4,7 +4,9 @@ import com.selectiveadventure.command.SACommand;
 import com.selectiveadventure.listener.BlockProtectionListener;
 import com.selectiveadventure.listener.ForceAdventureListener;
 import com.selectiveadventure.listener.MobSpawnListener;
+import com.selectiveadventure.listener.RegionEffectListener;
 import com.selectiveadventure.listener.WandListener;
+import com.selectiveadventure.nametag.NametagManager;
 import com.selectiveadventure.hearts.HeartsManager;
 import com.selectiveadventure.region.RegionManager;
 import com.selectiveadventure.util.SelectionManager;
@@ -23,6 +25,7 @@ public class SelectiveAdventurePlugin extends JavaPlugin {
     private SelectionManager selectionManager;
     private VisualManager visualManager;
     private HeartsManager heartsManager;
+    private NametagManager nametagManager;
     private NamespacedKey wandKey;
 
     // cached config values
@@ -51,6 +54,7 @@ public class SelectiveAdventurePlugin extends JavaPlugin {
         this.regionManager.load();
         this.visualManager = new VisualManager(this);
         this.heartsManager = new HeartsManager(this);
+        this.nametagManager = new NametagManager(this);
 
         // command + tab completion
         SACommand command = new SACommand(this);
@@ -67,10 +71,13 @@ public class SelectiveAdventurePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WandListener(this), this);
         getServer().getPluginManager().registerEvents(new ForceAdventureListener(this), this);
         getServer().getPluginManager().registerEvents(new MobSpawnListener(this), this);
+        getServer().getPluginManager().registerEvents(new RegionEffectListener(this), this);
         getServer().getPluginManager().registerEvents(visualManager, this);
         getServer().getPluginManager().registerEvents(heartsManager, this);
+        getServer().getPluginManager().registerEvents(nametagManager, this);
         visualManager.start();
         heartsManager.recheckAll();
+        nametagManager.recheckAll();
 
         getLogger().info("SelectiveAdventure v" + getPluginMeta().getVersion() + " enabled.");
     }
@@ -82,6 +89,9 @@ public class SelectiveAdventurePlugin extends JavaPlugin {
         }
         if (heartsManager != null) {
             heartsManager.shutdown();
+        }
+        if (nametagManager != null) {
+            nametagManager.shutdown();
         }
         if (regionManager != null) {
             regionManager.save();
@@ -96,6 +106,7 @@ public class SelectiveAdventurePlugin extends JavaPlugin {
         regionManager.load();
         visualManager.reload();
         heartsManager.recheckAll();
+        nametagManager.recheckAll();
     }
 
     private void loadConfigValues() {
@@ -152,6 +163,10 @@ public class SelectiveAdventurePlugin extends JavaPlugin {
 
     public HeartsManager getHeartsManager() {
         return heartsManager;
+    }
+
+    public NametagManager getNametagManager() {
+        return nametagManager;
     }
 
     public boolean isVisualsEnabled() {

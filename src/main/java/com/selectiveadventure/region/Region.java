@@ -33,6 +33,9 @@ public class Region {
     private boolean defaultDeny = true;
     private boolean oneRowHearts = false;
     private boolean disableNaturalMobSpawning = false;
+    private boolean disablePearls = false;
+    private boolean disableExplosions = false;
+    private boolean hideNametags = false;
 
     /** UUID -> last known name. */
     private final Map<UUID, String> allowedPlayers = new HashMap<>();
@@ -214,6 +217,30 @@ public class Region {
 
     public void setDisableNaturalMobSpawning(boolean disableNaturalMobSpawning) {
         this.disableNaturalMobSpawning = disableNaturalMobSpawning;
+    }
+
+    public boolean isDisablePearls() {
+        return disablePearls;
+    }
+
+    public void setDisablePearls(boolean disablePearls) {
+        this.disablePearls = disablePearls;
+    }
+
+    public boolean isDisableExplosions() {
+        return disableExplosions;
+    }
+
+    public void setDisableExplosions(boolean disableExplosions) {
+        this.disableExplosions = disableExplosions;
+    }
+
+    public boolean isHideNametags() {
+        return hideNametags;
+    }
+
+    public void setHideNametags(boolean hideNametags) {
+        this.hideNametags = hideNametags;
     }
 
     public int getMinX() {

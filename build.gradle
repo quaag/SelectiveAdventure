@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.selectiveadventure'
-version = '1.3.0'
+version = '1.4.1'
 description = 'Region-based selective adventure-mode block permissions'
 
 java {
